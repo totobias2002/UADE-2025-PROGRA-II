@@ -13,28 +13,13 @@ public class Cliente {
         this.vip = vip;
     }
 
-    public String getNombre() {
-        return nombre;
-    }
-
-    public String getDireccion() {
-        return direccion;
-    }
-
-    public String getTelefono() {
-        return telefono;
-    }
-
-    public boolean isVip() {
-        return vip;
-    }
-
-    public void setVip(boolean vip) {
-        this.vip = vip;
-    }
+    public String getNombre() { return nombre; }
+    public String getDireccion() { return direccion; }
+    public String getTelefono() { return telefono; }
+    public boolean isVip() { return vip; }
 
     @Override
     public String toString() {
-        return nombre + " - " + direccion + " - " + telefono + (vip ? " (VIP)" : " (Normal)");
+        return nombre + " (" + (vip ? "VIP" : "Normal") + ")";
     }
 }

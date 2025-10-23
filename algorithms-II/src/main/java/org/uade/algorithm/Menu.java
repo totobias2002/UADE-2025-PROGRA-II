@@ -1,16 +1,14 @@
 package org.uade.algorithm;
 
-import org.uade.algorithm.Cliente;
-import org.uade.algorithm.Pedido;
-import org.uade.structure.implementation.dynamic.DynamicPriorityQueueADT;
-
 import java.util.Scanner;
 
 public class Menu {
+    private GestorPedidos gestor;
+    private int contadorPedidos = 1;
 
-    private DynamicPriorityQueueADT colaPedidos = new DynamicPriorityQueueADT();
-    private Pedido[] pedidos = new Pedido[100]; // arreglo auxiliar para guardar los objetos
-    private int contadorPedidos = 0;
+    public Menu() {
+        gestor = new GestorPedidos();
+    }
 
     public void iniciar() {
         Scanner scanner = new Scanner(System.in);
@@ -19,34 +17,38 @@ public class Menu {
         while (true) {
             System.out.println("==== SISTEMA DE RESTAURANTE ====");
             System.out.println("1. Registrar pedido");
-            System.out.println("2. Ver pedidos pendientes");
-            System.out.println("3. Preparar siguiente pedido (según prioridad)");
+            System.out.println("2. Mostrar platos disponibles");
+            System.out.println("3. Procesar siguiente pedido");
+            System.out.println("4. Preparar siguiente plato");
+            System.out.println("5. Entregar plato listo");
             System.out.println("0. Salir");
-            System.out.print("Ingrese una opción (0-3): ");
+            System.out.print("Ingrese una opción: ");
 
-            if (scanner.hasNextInt()) {
-                opcion = scanner.nextInt();
-                scanner.nextLine(); // limpia buffer
-
-                switch (opcion) {
-                    case 1 -> registrarPedido(scanner);
-                    case 2 -> mostrarPedidosPendientes();
-                    case 3 -> prepararSiguientePedido();
-                    case 0 -> {
-                        System.out.println("👋 Saliendo del sistema...");
-                        scanner.close();
-                        return;
-                    }
-                    default -> System.out.println("❌ Opción fuera de rango.\n");
-                }
-            } else {
-                System.out.println("❌ Entrada inválida. Intente nuevamente.\n");
+            if (!scanner.hasNextInt()) {
+                System.out.println("❌ Entrada inválida.\n");
                 scanner.next();
+                continue;
+            }
+
+            opcion = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (opcion) {
+                case 1 -> registrarPedido(scanner);
+                case 2 -> gestor.mostrarPlatos();
+                case 3 -> gestor.procesarSiguientePedido();
+                case 4 -> gestor.prepararSiguientePlato();
+                case 5 -> gestor.entregarPlato();
+                case 0 -> {
+                    System.out.println("👋 Saliendo del sistema...");
+                    scanner.close();
+                    return;
+                }
+                default -> System.out.println("❌ Opción inválida.\n");
             }
         }
     }
 
-    // Registrar pedido
     private void registrarPedido(Scanner scanner) {
         System.out.println("\n=== REGISTRAR PEDIDO ===");
         System.out.print("Nombre del cliente: ");
@@ -61,59 +63,39 @@ public class Menu {
         System.out.print("¿Es cliente VIP? (s/n): ");
         boolean vip = scanner.nextLine().equalsIgnoreCase("s");
 
-        System.out.print("Tipo de pedido (para llevar / a domicilio): ");
-        String tipo = scanner.nextLine();
+        System.out.print("Tipo de pedido (1 = Para llevar / 2 = A domicilio): ");
+        String tipo = scanner.nextLine().equals("1") ? "Para llevar" : "A domicilio";
 
-        // Crear cliente y pedido
         Cliente cliente = new Cliente(nombre, direccion, telefono, vip);
-        Pedido pedido = new Pedido(contadorPedidos + 1, cliente, tipo);
+        Pedido pedido = new Pedido(contadorPedidos++, cliente, tipo);
 
-        // Guardar pedido en arreglo
-        pedidos[contadorPedidos] = pedido;
+        // Elegir platos
+        boolean agregando = true;
+        while (agregando) {
+            gestor.mostrarPlatos();
+            System.out.print("Ingrese el ID del plato a agregar (0 para terminar): ");
+            if (!scanner.hasNextInt()) {
+                System.out.println("❌ Entrada inválida.");
+                scanner.next();
+                continue;
+            }
+            int idPlato = scanner.nextInt();
+            scanner.nextLine();
 
-        // Clasificar prioridad
-        int prioridad = vip ? 1 : 2;
-
-        // Agregar índice del pedido a la cola con prioridad
-        colaPedidos.add(contadorPedidos, prioridad);
-
-        contadorPedidos++;
-
-        System.out.println("✅ Pedido registrado correctamente.");
-        System.out.println(pedido + "\n");
-    }
-
-    // Mostrar pedidos pendientes
-    private void mostrarPedidosPendientes() {
-        System.out.println("\n=== PEDIDOS PENDIENTES ===");
-
-        if (colaPedidos.isEmpty()) {
-            System.out.println("No hay pedidos en espera.\n");
-            return;
-        }
-
-        for (int i = 0; i < contadorPedidos; i++) {
-            if (pedidos[i] != null) {
-                System.out.println(pedidos[i]);
+            if (idPlato == 0) {
+                agregando = false;
+            } else {
+                Plato plato = gestor.buscarPlatoPorId(idPlato);
+                if (plato != null) {
+                    pedido.agregarPlato(new Plato(plato.getId(), plato.getNombre(), plato.getPrecio()));
+                    System.out.println("✅ Plato agregado: " + plato.getNombre());
+                } else {
+                    System.out.println("❌ Plato no encontrado.");
+                }
             }
         }
-        System.out.println();
-    }
 
-    //  Preparar siguiente pedido (según prioridad)
-    private void prepararSiguientePedido() {
-        if (colaPedidos.isEmpty()) {
-            System.out.println("📭 No hay pedidos para preparar.\n");
-            return;
-        }
-
-        int indice = colaPedidos.getElement(); // índice del pedido con más prioridad
-        colaPedidos.remove();
-
-        Pedido pedido = pedidos[indice];
-        pedido.setEstado("en preparación");
-
-        System.out.println("🍳 Preparando: " + pedido);
-        System.out.println();
+        gestor.agregarPedido(pedido);
+        System.out.println("Pedido registrado: " + pedido + "\n");
     }
 }
