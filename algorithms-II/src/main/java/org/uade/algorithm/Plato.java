@@ -10,7 +10,7 @@ public class Plato {
         this.id = id;
         this.nombre = nombre;
         this.precio = precio;
-        this.estado = "pendiente"; // por defecto
+        this.estado = "pendiente"; //No se esta usando
     }
 
     public int getId() { return id; }
@@ -22,6 +22,6 @@ public class Plato {
 
     @Override
     public String toString() {
-        return id + ". " + nombre + " - $" + precio + " | Estado: " + estado;
+        return id + ". " + nombre + " - $" + precio;
     }
 }
