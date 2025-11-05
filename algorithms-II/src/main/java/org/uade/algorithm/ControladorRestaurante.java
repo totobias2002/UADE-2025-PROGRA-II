@@ -22,22 +22,41 @@ public class ControladorRestaurante {
         System.out.print("Ingrese nombre del cliente: ");
         String nombre = scanner.nextLine();
 
-        System.out.print("Ingrese apellido del cliente: ");
-        String apellido = scanner.nextLine();
+        System.out.print("Ingrese dirección del cliente: ");
+        String direccion = scanner.nextLine();
 
-        System.out.print("Ingrese correo electrónico: ");
-        String email = scanner.nextLine();
+        System.out.print("Ingrese teléfono del cliente: ");
+        String telefono = scanner.nextLine();
 
         System.out.print("¿Es cliente VIP? (s/n): ");
         boolean vip = scanner.nextLine().trim().equalsIgnoreCase("s");
 
-        // ✅ Ahora usa el constructor correcto
-        Cliente cliente = new Cliente(nombre, apellido, email, vip);
+        Cliente cliente = new Cliente(nombre, direccion, telefono, vip);
 
-        System.out.print("Tipo de pedido (Para llevar / A domicilio): ");
-        String tipo = scanner.nextLine();
+        int tipoNum;
+        String tipoPedido = "";
 
-        Pedido pedido = new Pedido(totalPedidos + 1, cliente, tipo);
+        // 🔁 Menú para elegir tipo de pedido con validación
+        while (true) {
+            System.out.println("Seleccione el tipo de pedido:");
+            System.out.println("1. Para llevar");
+            System.out.println("2. A domicilio");
+            System.out.print("Opción: ");
+            tipoNum = scanner.nextInt();
+            scanner.nextLine(); // limpiar buffer
+
+            if (tipoNum == 1) {
+                tipoPedido = "Para llevar";
+                break;
+            } else if (tipoNum == 2) {
+                tipoPedido = "A domicilio";
+                break;
+            } else {
+                System.out.println("⚠️ Opción inválida. Ingrese 1 o 2.\n");
+            }
+        }
+
+        Pedido pedido = new Pedido(totalPedidos + 1, cliente, tipoPedido);
         mostrarPlatos();
 
         while (true) {
@@ -186,18 +205,49 @@ public class ControladorRestaurante {
             return;
         }
 
-        System.out.println("\n📋 LISTADO DE PEDIDOS");
+        System.out.println("\n📦 ESTADO DE PEDIDOS (ordenados por prioridad)");
         System.out.println("-------------------------------------");
+
+        // Creamos un arreglo auxiliar para mostrar según prioridad
+        Pedido[] ordenados = new Pedido[totalPedidos];
+        int count = 0;
+
+        // Primero los VIP
         for (int i = 0; i < totalPedidos; i++) {
-            Pedido p = pedidosRegistrados[i];
-            if (p != null) {
-                System.out.println("Pedido #" + p.getId() +
-                        " | Cliente: " + p.getCliente().getNombre() +
-                        " | Estado: " + p.getEstado());
+            if (pedidosRegistrados[i] != null && pedidosRegistrados[i].getCliente().isVip()) {
+                ordenados[count++] = pedidosRegistrados[i];
             }
         }
+        // Luego los normales
+        for (int i = 0; i < totalPedidos; i++) {
+            if (pedidosRegistrados[i] != null && !pedidosRegistrados[i].getCliente().isVip()) {
+                ordenados[count++] = pedidosRegistrados[i];
+            }
+        }
+
+        int prioridadPos = 1;
+        int despachados = 0;
+
+        for (int i = 0; i < count; i++) {
+            Pedido p = ordenados[i];
+            if (p != null) {
+                String tipoPrioridad = p.getCliente().isVip() ? "VIP" : "Normal";
+                System.out.println(prioridadPos + "° en prioridad | #" + p.getId() +
+                        " | Cliente: " + p.getCliente().getNombre() +
+                        " | Prioridad: " + tipoPrioridad +
+                        " | Estado: " + p.getEstado());
+                prioridadPos++;
+                if (p.getEstado().equals("✅ Entregado") || p.getEstado().equals("🚚 Listo para entregar")) {
+                    despachados++;
+                }
+            }
+        }
+
         System.out.println("-------------------------------------");
+        System.out.println("📋 Pedidos totales: " + totalPedidos);
+        System.out.println("🚚 Pedidos despachados: " + despachados);
     }
+
 
     public void mostrarPlatos() {
         System.out.println("\n🍽️ MENÚ DISPONIBLE:");

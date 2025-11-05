@@ -7,7 +7,7 @@ public class GestorPedidos {
     private DynamicPriorityQueueADT colaPedidos;
     private Pedido[] pedidosRegistrados;
     private int totalPedidos;
-    private int pedidosDespachados; // 🔹 Nuevo contador de pedidos entregados
+    private int pedidosDespachados;
 
     public GestorPedidos() {
         colaPedidos = new DynamicPriorityQueueADT();
@@ -48,7 +48,7 @@ public class GestorPedidos {
             return;
         }
 
-        int idPedido = colaPedidos.getElement(); // devuelve un int
+        int idPedido = colaPedidos.getElement();
         Pedido pedido = buscarPedidoPorId(idPedido);
 
         if (pedido == null) {
@@ -119,7 +119,7 @@ public class GestorPedidos {
 
         colaPedidos.remove();
         pedido.setEstado("✅ Entregado");
-        pedidosDespachados++; // 🔹 Contador incrementa
+        pedidosDespachados++;
 
         System.out.println("🚚 Pedido #" + pedido.getId() + " entregado a " +
                 pedido.getCliente().getNombre() + ".");
@@ -127,71 +127,59 @@ public class GestorPedidos {
         System.out.println("📋 Pedidos restantes en cola: " + colaPedidos.size() + "\n");
     }
 
-    // ======================
-    // 🔹 REPORTES
-    // ======================
-    public void generarReportes() {
-        System.out.println("📊 Reporte general del sistema:");
-        System.out.println("- Pedidos registrados: " + totalPedidos);
-        System.out.println("- Pedidos pendientes: " + colaPedidos.size());
-        System.out.println("- Pedidos despachados: " + pedidosDespachados);
-    }
 
     // ======================
-    // 🔹 MOSTRAR PLATOS
-    // ======================
-    public void mostrarPlatos() {
-        System.out.println("\n🍽️ LISTA DE PLATOS DISPONIBLES:");
-        Plato[] menu = obtenerMenuEjemplo();
-        for (Plato p : menu) {
-            System.out.println(p.getId() + ". " + p.getNombre() + " - $" + p.getPrecio());
-        }
-        System.out.println();
-    }
-
-    // ======================
-    // 🔹 BUSCAR PLATO POR ID
-    // ======================
-    public Plato buscarPlatoPorId(int id) {
-        for (Plato p : obtenerMenuEjemplo()) {
-            if (p.getId() == id) return p;
-        }
-        return null;
-    }
-
-    // ======================
-    // 🔹 MENÚ DE EJEMPLO
-    // ======================
-    private Plato[] obtenerMenuEjemplo() {
-        return new Plato[]{
-                new Plato(1, "Milanesa con papas", 3500),
-                new Plato(2, "Hamburguesa completa", 3000),
-                new Plato(3, "Pizza muzzarella", 4200),
-                new Plato(4, "Empanadas (3 unidades)", 2000),
-                new Plato(5, "Ravioles con salsa", 3800)
-        };
-    }
-
-    // ======================
-    // 🔹 MOSTRAR ESTADO DE PEDIDOS
-    // ======================
+// 🔹 MOSTRAR ESTADO DE PEDIDOS (ORDENADOS POR PRIORIDAD)
+// ======================
     public void mostrarEstadoPedidos() {
         if (totalPedidos == 0) {
             System.out.println("⚠️ No hay pedidos registrados.");
             return;
         }
 
-        System.out.println("\n📋 LISTADO DE PEDIDOS");
+        System.out.println("\n📦 ESTADO DE PEDIDOS (ordenados por prioridad)");
         System.out.println("-------------------------------------");
+
+        // Creamos un arreglo auxiliar para mostrar según prioridad
+        Pedido[] ordenados = new Pedido[totalPedidos];
+        int count = 0;
+
+        // Primero los VIP
         for (int i = 0; i < totalPedidos; i++) {
-            Pedido p = pedidosRegistrados[i];
-            System.out.println("Pedido N°" + p.getId() +
-                    " | Cliente: " + p.getCliente().getNombre() +
-                    " | Tipo: " + p.getTipo() +
-                    " | Estado actual: " + p.getEstado());
+            if (pedidosRegistrados[i] != null && pedidosRegistrados[i].getCliente().isVip()) {
+                ordenados[count++] = pedidosRegistrados[i];
+            }
         }
+        // Luego los normales
+        for (int i = 0; i < totalPedidos; i++) {
+            if (pedidosRegistrados[i] != null && !pedidosRegistrados[i].getCliente().isVip()) {
+                ordenados[count++] = pedidosRegistrados[i];
+            }
+        }
+
+        int prioridadPos = 1;
+        int despachados = 0;
+
+        for (int i = 0; i < count; i++) {
+            Pedido p = ordenados[i];
+            if (p != null) {
+                String tipoPrioridad = p.getCliente().isVip() ? "VIP" : "Normal";
+                System.out.println(prioridadPos + "° en prioridad | Pedido N°" + p.getId() +
+                        " | Cliente: " + p.getCliente().getNombre() +
+                        " | Prioridad: " + tipoPrioridad +
+                        " | Estado: " + p.getEstado());
+                prioridadPos++;
+                if (p.getEstado().equals("✅ Entregado") || p.getEstado().equals("🚚 Listo para entregar")) {
+                    despachados++;
+                }
+            }
+        }
+
         System.out.println("-------------------------------------");
-        System.out.println("📦 Total de pedidos registrados: " + totalPedidos);
-        System.out.println("🚚 Total de pedidos despachados: " + pedidosDespachados);
+        System.out.println("📋 Pedidos totales: " + totalPedidos);
+        System.out.println("🚚 Pedidos despachados: " + despachados);
     }
+
+
+
 }
