@@ -1,232 +1,197 @@
 package org.uade.algorithm;
 
-import org.uade.structure.implementation.dynamic.DynamicQueueADT;
 import org.uade.structure.implementation.dynamic.DynamicPriorityQueueADT;
 
 public class GestorPedidos {
-    private DynamicPriorityQueueADT colaPrioridad; // VIP primero
-    private DynamicQueueADT colaCocina;            // Platos a preparar
-    private DynamicQueueADT colaListos;            // Platos listos
-    private DynamicQueueADT colaEntregas;          // Pedidos listos para enviar
-    private Pedido[] pedidosRegistrados;
-    private Plato[] platosDisponibles;
-    private Repartidor[] repartidores;
 
-    private int cantidadPedidos;
-    private int cantidadRepartidores;
+    private DynamicPriorityQueueADT colaPedidos;
+    private Pedido[] pedidosRegistrados;
+    private int totalPedidos;
+    private int pedidosDespachados; // 🔹 Nuevo contador de pedidos entregados
 
     public GestorPedidos() {
-        colaPrioridad = new DynamicPriorityQueueADT();
-        colaCocina = new DynamicQueueADT();
-        colaListos = new DynamicQueueADT();
-        colaEntregas = new DynamicQueueADT();
+        colaPedidos = new DynamicPriorityQueueADT();
         pedidosRegistrados = new Pedido[100];
-        cantidadPedidos = 0;
-
-        cargarPlatos();
-        cargarRepartidores();
+        totalPedidos = 0;
+        pedidosDespachados = 0;
     }
 
-    // ------------------- PLATOS -------------------
-
-    private void cargarPlatos() {
-        platosDisponibles = new Plato[5];
-        platosDisponibles[0] = new Plato(1, "Milanesa con papas", 2500);
-        platosDisponibles[1] = new Plato(2, "Pizza muzzarella", 3000);
-        platosDisponibles[2] = new Plato(3, "Empanadas (docena)", 2800);
-        platosDisponibles[3] = new Plato(4, "Ensalada César", 2400);
-        platosDisponibles[4] = new Plato(5, "Hamburguesa completa", 3200);
-    }
-
-    public void mostrarPlatos() {
-        System.out.println("\n=== PLATOS DISPONIBLES ===");
-        for (Plato p : platosDisponibles) {
-            System.out.println(p);
-        }
-        System.out.println();
-    }
-
-    // ------------------- REPARTIDORES -------------------
-
-    private void cargarRepartidores() {
-        repartidores = new Repartidor[10];
-        for (int i = 0; i < 10; i++) {
-            repartidores[i] = new Repartidor(i + 1, "Repartidor " + (i + 1));
-        }
-        cantidadRepartidores = 10;
-    }
-
-    private Repartidor obtenerRepartidorDisponible() {
-        for (Repartidor r : repartidores) {
-            if (r.estaDisponible())
-                return r;
-        }
-        return null;
-    }
-
-    // ------------------- PEDIDOS -------------------
-
+    // ======================
+    // 🔹 AGREGAR PEDIDO
+    // ======================
     public void agregarPedido(Pedido pedido) {
-        pedidosRegistrados[cantidadPedidos++] = pedido;
-        int prioridad = pedido.esVip() ? 0 : 1;
-        colaPrioridad.add(pedido.getId(), prioridad);
-        System.out.println("✅ Pedido agregado (Prioridad: " + (pedido.esVip() ? "VIP" : "Normal") + ")");
+        int prioridad = pedido.getCliente().isVip() ? 0 : 1;
+        pedido.setEstado("📝 Pedido tomado");
+        pedidosRegistrados[totalPedidos++] = pedido;
+        colaPedidos.add(pedido.getId(), prioridad);
+        System.out.println("✅ Pedido agregado: " + pedido);
     }
 
-    public void procesarSiguientePedido() {
-        if (colaPrioridad.isEmpty()) {
-            System.out.println("No hay pedidos pendientes.\n");
-            return;
-        }
-
-        int id = colaPrioridad.getElement();
-        colaPrioridad.remove();
-        Pedido pedido = buscarPedidoPorId(id);
-
-        if (pedido != null) {
-            System.out.println("🍽️ Pedido #" + id + " en preparación: " + pedido.getCliente().getNombre());
-            pedido.setEstado("en preparación");
-            enviarPlatosACocina(pedido);
-        }
-    }
-
+    // ======================
+    // 🔹 BUSCAR PEDIDO POR ID
+    // ======================
     private Pedido buscarPedidoPorId(int id) {
-        for (int i = 0; i < cantidadPedidos; i++) {
-            if (pedidosRegistrados[i].getId() == id)
+        for (int i = 0; i < totalPedidos; i++) {
+            if (pedidosRegistrados[i].getId() == id) {
                 return pedidosRegistrados[i];
+            }
         }
         return null;
     }
 
-    // ------------------- COCINA -------------------
-
-    private void enviarPlatosACocina(Pedido pedido) {
-        for (Plato plato : pedido.getPlatos()) {
-            colaCocina.add(plato.getId());
-            System.out.println("   👨‍🍳 Enviando a cocina: " + plato.getNombre());
+    // ======================
+    // 🔹 PROCESAR SIGUIENTE PEDIDO
+    // ======================
+    public void procesarSiguientePedido() {
+        if (colaPedidos.isEmpty()) {
+            System.out.println("⚠️ No hay pedidos pendientes para procesar.");
+            return;
         }
-        System.out.println("Todos los platos del pedido #" + pedido.getId() + " fueron enviados a cocina.\n");
+
+        int idPedido = colaPedidos.getElement(); // devuelve un int
+        Pedido pedido = buscarPedidoPorId(idPedido);
+
+        if (pedido == null) {
+            System.out.println("❌ Error interno: pedido no encontrado.");
+            colaPedidos.remove();
+            return;
+        }
+
+        pedido.setEstado("🍳 En cocina");
+        System.out.println("\n🧾 Procesando pedido #" + pedido.getId() +
+                " del cliente: " + pedido.getCliente().getNombre());
+
+        for (int i = 0; i < pedido.cantidadDePlatos(); i++) {
+            Plato plato = pedido.obtenerPlato(i);
+            System.out.println("👨‍🍳 Preparando plato: " + plato.getNombre());
+        }
+
+        System.out.println("✅ Pedido #" + pedido.getId() + " en cocina.\n");
     }
 
+    // ======================
+    // 🔹 PREPARAR SIGUIENTE PLATO
+    // ======================
     public void prepararSiguientePlato() {
-        if (colaCocina.isEmpty()) {
-            System.out.println("No hay platos en cocina.\n");
+        if (colaPedidos.isEmpty()) {
+            System.out.println("⚠️ No hay pedidos en preparación.");
             return;
         }
 
-        int idPlato = colaCocina.getElement();
-        colaCocina.remove();
-        Plato plato = buscarPlatoPorId(idPlato);
+        int idPedido = colaPedidos.getElement();
+        Pedido pedido = buscarPedidoPorId(idPedido);
 
-        System.out.println("🔥 Cocinando plato: " + plato.getNombre());
-        plato.setEstado("listo");
-        colaListos.add(plato.getId());
-
-        System.out.println("✅ Plato listo: " + plato.getNombre() + "\n");
-    }
-
-    Plato buscarPlatoPorId(int id) {
-        for (Plato p : platosDisponibles) {
-            if (p.getId() == id)
-                return p;
-        }
-        return null;
-    }
-
-    // ------------------- ENTREGA -------------------
-
-    public void entregarPlato() {
-        if (colaListos.isEmpty()) {
-            System.out.println("No hay platos listos para entregar.\n");
-            return;
-        }
-
-        int idPlato = colaListos.getElement();
-        colaListos.remove();
-        Plato plato = buscarPlatoPorId(idPlato);
-
-        Pedido pedido = buscarPedidoPorPlato(plato);
         if (pedido == null) return;
 
-        if (pedido.getTipo().equals("A domicilio")) {
-            colaEntregas.add(pedido.getId());
-            asignarRepartidor(pedido);
-        } else {
-            pedido.setEstado("finalizado");
-            System.out.println("🏠 Pedido #" + pedido.getId() + " retirado en mostrador.\n");
-        }
-    }
-
-    private Pedido buscarPedidoPorPlato(Plato plato) {
-        for (int i = 0; i < cantidadPedidos; i++) {
-            for (Plato p : pedidosRegistrados[i].getPlatos()) {
-                if (p.getId() == plato.getId()) return pedidosRegistrados[i];
-            }
-        }
-        return null;
-    }
-
-    private void asignarRepartidor(Pedido pedido) {
-        Repartidor r = obtenerRepartidorDisponible();
-        if (r == null) {
-            System.out.println("🚫 No hay repartidores disponibles. Pedido #" + pedido.getId() + " en cola de entrega.\n");
+        Plato siguiente = pedido.obtenerPlatoPendiente();
+        if (siguiente == null) {
+            System.out.println("⚠️ Todos los platos del pedido #" + pedido.getId() + " ya están listos.");
             return;
         }
 
-        r.asignarPedido(pedido);
-        pedido.setEstado("en reparto");
-        System.out.println("🚴 Pedido #" + pedido.getId() + " asignado a " + r.getNombre());
-        r.entregarPedido(pedido);
+        siguiente.setEstado("listo");
+        System.out.println("👨‍🍳 Plato preparado: " + siguiente.getNombre());
+
+        if (pedido.todosPlatosListos()) {
+            pedido.setEstado("🚚 Listo para entregar");
+            System.out.println("✅ Pedido #" + pedido.getId() + " completo.\n");
+        }
     }
 
-    // ------------------- REPORTES -------------------
+    // ======================
+    // 🔹 ENTREGAR PEDIDO
+    // ======================
+    public void entregarPlato() {
+        if (colaPedidos.isEmpty()) {
+            System.out.println("⚠️ No hay pedidos listos para entregar.");
+            return;
+        }
 
+        int idPedido = colaPedidos.getElement();
+        Pedido pedido = buscarPedidoPorId(idPedido);
+
+        if (pedido == null) return;
+
+        if (!pedido.todosPlatosListos()) {
+            System.out.println("⚠️ El pedido #" + pedido.getId() + " aún no está completo.");
+            return;
+        }
+
+        colaPedidos.remove();
+        pedido.setEstado("✅ Entregado");
+        pedidosDespachados++; // 🔹 Contador incrementa
+
+        System.out.println("🚚 Pedido #" + pedido.getId() + " entregado a " +
+                pedido.getCliente().getNombre() + ".");
+        System.out.println("📦 Total de pedidos despachados: " + pedidosDespachados);
+        System.out.println("📋 Pedidos restantes en cola: " + colaPedidos.size() + "\n");
+    }
+
+    // ======================
+    // 🔹 REPORTES
+    // ======================
     public void generarReportes() {
-        System.out.println("\n=== REPORTES ===");
-        int pendientes = 0, finalizados = 0;
+        System.out.println("📊 Reporte general del sistema:");
+        System.out.println("- Pedidos registrados: " + totalPedidos);
+        System.out.println("- Pedidos pendientes: " + colaPedidos.size());
+        System.out.println("- Pedidos despachados: " + pedidosDespachados);
+    }
 
-        for (int i = 0; i < cantidadPedidos; i++) {
-            if (pedidosRegistrados[i].getEstado().equals("finalizado"))
-                finalizados++;
-            else
-                pendientes++;
-        }
-
-        System.out.println("📦 Pedidos pendientes: " + pendientes);
-        System.out.println("✅ Pedidos finalizados: " + finalizados);
-
-        System.out.println("\n🚴 Pedidos entregados por repartidor:");
-        for (Repartidor r : repartidores) {
-            System.out.println("   " + r.getNombre() + ": " + r.getCantidadEntregas() + " entregas");
-        }
-
-        Cliente mejor = clienteConMasPedidos();
-        if (mejor != null) {
-            System.out.println("\n⭐ Cliente con más pedidos: " + mejor.getNombre());
+    // ======================
+    // 🔹 MOSTRAR PLATOS
+    // ======================
+    public void mostrarPlatos() {
+        System.out.println("\n🍽️ LISTA DE PLATOS DISPONIBLES:");
+        Plato[] menu = obtenerMenuEjemplo();
+        for (Plato p : menu) {
+            System.out.println(p.getId() + ". " + p.getNombre() + " - $" + p.getPrecio());
         }
         System.out.println();
     }
 
-    private Cliente clienteConMasPedidos() {
-        Cliente top = null;
-        int max = 0;
-        for (int i = 0; i < cantidadPedidos; i++) {
-            Cliente c = pedidosRegistrados[i].getCliente();
-            int cantidad = contarPedidosCliente(c);
-            if (cantidad > max) {
-                max = cantidad;
-                top = c;
-            }
+    // ======================
+    // 🔹 BUSCAR PLATO POR ID
+    // ======================
+    public Plato buscarPlatoPorId(int id) {
+        for (Plato p : obtenerMenuEjemplo()) {
+            if (p.getId() == id) return p;
         }
-        return top;
+        return null;
     }
 
-    private int contarPedidosCliente(Cliente c) {
-        int contador = 0;
-        for (int i = 0; i < cantidadPedidos; i++) {
-            if (pedidosRegistrados[i].getCliente().getNombre().equals(c.getNombre()))
-                contador++;
+    // ======================
+    // 🔹 MENÚ DE EJEMPLO
+    // ======================
+    private Plato[] obtenerMenuEjemplo() {
+        return new Plato[]{
+                new Plato(1, "Milanesa con papas", 3500),
+                new Plato(2, "Hamburguesa completa", 3000),
+                new Plato(3, "Pizza muzzarella", 4200),
+                new Plato(4, "Empanadas (3 unidades)", 2000),
+                new Plato(5, "Ravioles con salsa", 3800)
+        };
+    }
+
+    // ======================
+    // 🔹 MOSTRAR ESTADO DE PEDIDOS
+    // ======================
+    public void mostrarEstadoPedidos() {
+        if (totalPedidos == 0) {
+            System.out.println("⚠️ No hay pedidos registrados.");
+            return;
         }
-        return contador;
+
+        System.out.println("\n📋 LISTADO DE PEDIDOS");
+        System.out.println("-------------------------------------");
+        for (int i = 0; i < totalPedidos; i++) {
+            Pedido p = pedidosRegistrados[i];
+            System.out.println("Pedido N°" + p.getId() +
+                    " | Cliente: " + p.getCliente().getNombre() +
+                    " | Tipo: " + p.getTipo() +
+                    " | Estado actual: " + p.getEstado());
+        }
+        System.out.println("-------------------------------------");
+        System.out.println("📦 Total de pedidos registrados: " + totalPedidos);
+        System.out.println("🚚 Total de pedidos despachados: " + pedidosDespachados);
     }
 }

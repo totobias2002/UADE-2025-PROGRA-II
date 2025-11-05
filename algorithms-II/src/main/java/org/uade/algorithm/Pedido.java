@@ -3,59 +3,101 @@ package org.uade.algorithm;
 public class Pedido {
     private int id;
     private Cliente cliente;
-    private String tipo; // "para llevar" o "a domicilio"
-    private String estado; // "pendiente", "en preparación", etc.
-    private Plato[] platos; // Platos elegidos por el cliente
-    private int cantidadPlatos; // Cantidad de platos agregados
+    private Plato[] platos;
+    private int cantidadPlatos;
+    private String tipo;     // "Para llevar" o "A domicilio"
+    private String estado;   // "pendiente", "en preparación", "entregado"
 
     public Pedido(int id, Cliente cliente, String tipo) {
         this.id = id;
         this.cliente = cliente;
         this.tipo = tipo;
         this.estado = "pendiente";
-        this.platos = new Plato[10]; // Capacidad máxima por pedido
+        this.platos = new Plato[20]; // máximo 20 platos por pedido
         this.cantidadPlatos = 0;
     }
 
-    public int getId() { return id; }
-    public Cliente getCliente() { return cliente; }
-    public String getTipo() { return tipo; }
-    public String getEstado() { return estado; }
-    public void setEstado(String estado) { this.estado = estado; }
-
-    public boolean esVip() {
-        return cliente.isVip();
+    // ======================
+    // 🔹 GETTERS Y SETTERS
+    // ======================
+    public int getId() {
+        return id;
     }
 
-    // ----------------- Platos -----------------
+    public Cliente getCliente() {
+        return cliente;
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+    // ======================
+    // 🍽️ MANEJO DE PLATOS
+    // ======================
     public void agregarPlato(Plato plato) {
         if (cantidadPlatos < platos.length) {
             platos[cantidadPlatos++] = plato;
-        } else {
-            System.out.println("⚠️ No se pueden agregar más platos a este pedido.");
         }
     }
 
-    public Plato[] getPlatos() {
-        Plato[] resultado = new Plato[cantidadPlatos];
-        for (int i = 0; i < cantidadPlatos; i++) {
-            resultado[i] = platos[i];
+    public int cantidadDePlatos() {
+        return cantidadPlatos;
+    }
+
+    public Plato obtenerPlato(int index) {
+        if (index < 0 || index >= cantidadPlatos) {
+            return null;
         }
-        return resultado;
+        return platos[index];
+    }
+
+    public void removerPlato(int index) {
+        if (index < 0 || index >= cantidadPlatos) {
+            return;
+        }
+        for (int i = index; i < cantidadPlatos - 1; i++) {
+            platos[i] = platos[i + 1];
+        }
+        cantidadPlatos--;
+    }
+
+    public boolean todosPlatosListos() {
+        for (int i = 0; i < cantidadPlatos; i++) {
+            if (!platos[i].getEstado().equals("listo")) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public Plato obtenerPlatoPendiente() {
+        for (int i = 0; i < cantidadPlatos; i++) {
+            if (platos[i].getEstado().equals("pendiente")) {
+                return platos[i];
+            }
+        }
+        return null;
+    }
+
+    public boolean esVip() {
+        return cliente.isVip(); // ✅ corregido
     }
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Pedido #").append(id)
-                .append(" - ").append(cliente.toString())
-                .append(" | Tipo: ").append(tipo)
-                .append(" | Estado: ").append(estado)
-                .append(" | Platos: ");
+        String info = "Pedido #" + id + " (" + tipo + ") - " + cliente.getNombre() + "\n";
         for (int i = 0; i < cantidadPlatos; i++) {
-            sb.append(platos[i].getNombre());
-            if (i < cantidadPlatos - 1) sb.append(", ");
+            info += "   • " + platos[i].getNombre() + " - $" + platos[i].getPrecio() + "\n";
         }
-        return sb.toString();
+        return info;
     }
 }
