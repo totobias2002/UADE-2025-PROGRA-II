@@ -30,10 +30,10 @@ public class Repartidor {
     }
 
     public void entregarPedido(Pedido pedido) {
-        System.out.println("🛵 " + nombre + " entregando pedido #" + pedido.getId() + "...");
+        System.out.println(" " + nombre + " entregando pedido #" + pedido.getId() + "...");
         pedido.setEstado("finalizado");
         cantidadEntregas++;
         disponible = true;
-        System.out.println("✅ Pedido #" + pedido.getId() + " entregado por " + nombre + ".\n");
+        System.out.println("Pedido #" + pedido.getId() + " entregado por " + nombre + ".\n");
     }
 }

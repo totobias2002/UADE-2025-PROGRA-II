@@ -16,20 +16,15 @@ public class GestorPedidos {
         pedidosDespachados = 0;
     }
 
-    // ======================
-    // 🔹 AGREGAR PEDIDO
-    // ======================
+
     public void agregarPedido(Pedido pedido) {
         int prioridad = pedido.getCliente().isVip() ? 0 : 1;
-        pedido.setEstado("📝 Pedido tomado");
+        pedido.setEstado(" Pedido tomado");
         pedidosRegistrados[totalPedidos++] = pedido;
         colaPedidos.add(pedido.getId(), prioridad);
-        System.out.println("✅ Pedido agregado: " + pedido);
+        System.out.println(" Pedido agregado: " + pedido);
     }
 
-    // ======================
-    // 🔹 BUSCAR PEDIDO POR ID
-    // ======================
     private Pedido buscarPedidoPorId(int id) {
         for (int i = 0; i < totalPedidos; i++) {
             if (pedidosRegistrados[i].getId() == id) {
@@ -39,12 +34,9 @@ public class GestorPedidos {
         return null;
     }
 
-    // ======================
-    // 🔹 PROCESAR SIGUIENTE PEDIDO
-    // ======================
     public void procesarSiguientePedido() {
         if (colaPedidos.isEmpty()) {
-            System.out.println("⚠️ No hay pedidos pendientes para procesar.");
+            System.out.println(" No hay pedidos pendientes para procesar.");
             return;
         }
 
@@ -52,29 +44,26 @@ public class GestorPedidos {
         Pedido pedido = buscarPedidoPorId(idPedido);
 
         if (pedido == null) {
-            System.out.println("❌ Error interno: pedido no encontrado.");
+            System.out.println("X Error interno: pedido no encontrado.");
             colaPedidos.remove();
             return;
         }
 
         pedido.setEstado("🍳 En cocina");
-        System.out.println("\n🧾 Procesando pedido #" + pedido.getId() +
+        System.out.println("\n Procesando pedido #" + pedido.getId() +
                 " del cliente: " + pedido.getCliente().getNombre());
 
         for (int i = 0; i < pedido.cantidadDePlatos(); i++) {
             Plato plato = pedido.obtenerPlato(i);
-            System.out.println("👨‍🍳 Preparando plato: " + plato.getNombre());
+            System.out.println(" Preparando plato: " + plato.getNombre());
         }
 
-        System.out.println("✅ Pedido #" + pedido.getId() + " en cocina.\n");
+        System.out.println(" Pedido #" + pedido.getId() + " en cocina.\n");
     }
 
-    // ======================
-    // 🔹 PREPARAR SIGUIENTE PLATO
-    // ======================
     public void prepararSiguientePlato() {
         if (colaPedidos.isEmpty()) {
-            System.out.println("⚠️ No hay pedidos en preparación.");
+            System.out.println(" No hay pedidos en preparación.");
             return;
         }
 
@@ -85,25 +74,22 @@ public class GestorPedidos {
 
         Plato siguiente = pedido.obtenerPlatoPendiente();
         if (siguiente == null) {
-            System.out.println("⚠️ Todos los platos del pedido #" + pedido.getId() + " ya están listos.");
+            System.out.println("️ Todos los platos del pedido #" + pedido.getId() + " ya están listos.");
             return;
         }
 
         siguiente.setEstado("listo");
-        System.out.println("👨‍🍳 Plato preparado: " + siguiente.getNombre());
+        System.out.println(" Plato preparado: " + siguiente.getNombre());
 
         if (pedido.todosPlatosListos()) {
-            pedido.setEstado("🚚 Listo para entregar");
-            System.out.println("✅ Pedido #" + pedido.getId() + " completo.\n");
+            pedido.setEstado(" Listo para entregar");
+            System.out.println(" Pedido #" + pedido.getId() + " completo.\n");
         }
     }
 
-    // ======================
-    // 🔹 ENTREGAR PEDIDO
-    // ======================
     public void entregarPlato() {
         if (colaPedidos.isEmpty()) {
-            System.out.println("⚠️ No hay pedidos listos para entregar.");
+            System.out.println(" No hay pedidos listos para entregar.");
             return;
         }
 
@@ -113,34 +99,30 @@ public class GestorPedidos {
         if (pedido == null) return;
 
         if (!pedido.todosPlatosListos()) {
-            System.out.println("⚠️ El pedido #" + pedido.getId() + " aún no está completo.");
+            System.out.println(" El pedido #" + pedido.getId() + " aún no está completo.");
             return;
         }
 
         colaPedidos.remove();
-        pedido.setEstado("✅ Entregado");
+        pedido.setEstado(" Entregado");
         pedidosDespachados++;
 
-        System.out.println("🚚 Pedido #" + pedido.getId() + " entregado a " +
+        System.out.println(" Pedido #" + pedido.getId() + " entregado a " +
                 pedido.getCliente().getNombre() + ".");
-        System.out.println("📦 Total de pedidos despachados: " + pedidosDespachados);
-        System.out.println("📋 Pedidos restantes en cola: " + colaPedidos.size() + "\n");
+        System.out.println(" Total de pedidos despachados: " + pedidosDespachados);
+        System.out.println(" Pedidos restantes en cola: " + colaPedidos.size() + "\n");
     }
 
-
-    // ======================
-// 🔹 MOSTRAR ESTADO DE PEDIDOS (ORDENADOS POR PRIORIDAD)
-// ======================
     public void mostrarEstadoPedidos() {
         if (totalPedidos == 0) {
-            System.out.println("⚠️ No hay pedidos registrados.");
+            System.out.println(" No hay pedidos registrados.");
             return;
         }
 
-        System.out.println("\n📦 ESTADO DE PEDIDOS (ordenados por prioridad)");
+        System.out.println("\nESTADO DE PEDIDOS (ordenados por prioridad)");
         System.out.println("-------------------------------------");
 
-        // Creamos un arreglo auxiliar para mostrar según prioridad
+
         Pedido[] ordenados = new Pedido[totalPedidos];
         int count = 0;
 
@@ -169,15 +151,15 @@ public class GestorPedidos {
                         " | Prioridad: " + tipoPrioridad +
                         " | Estado: " + p.getEstado());
                 prioridadPos++;
-                if (p.getEstado().equals("✅ Entregado") || p.getEstado().equals("🚚 Listo para entregar")) {
+                if (p.getEstado().equals("Entregado") || p.getEstado().equals("Listo para entregar")) {
                     despachados++;
                 }
             }
         }
 
         System.out.println("-------------------------------------");
-        System.out.println("📋 Pedidos totales: " + totalPedidos);
-        System.out.println("🚚 Pedidos despachados: " + despachados);
+        System.out.println("Pedidos totales: " + totalPedidos);
+        System.out.println("Pedidos despachados: " + despachados);
     }
 
 

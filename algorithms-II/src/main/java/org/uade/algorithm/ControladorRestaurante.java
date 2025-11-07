@@ -52,7 +52,7 @@ public class ControladorRestaurante {
                 tipoPedido = "A domicilio";
                 break;
             } else {
-                System.out.println("⚠️ Opción inválida. Ingrese 1 o 2.\n");
+                System.out.println("Opción inválida. Ingrese 1 o 2.\n");
             }
         }
 
@@ -69,9 +69,9 @@ public class ControladorRestaurante {
             Plato plato = buscarPlatoPorId(idPlato);
             if (plato != null) {
                 pedido.agregarPlato(plato);
-                System.out.println("🍽️ Plato agregado: " + plato.getNombre());
+                System.out.println(" Plato agregado: " + plato.getNombre());
             } else {
-                System.out.println("⚠️ ID inválido.");
+                System.out.println(" ID inválido.");
             }
         }
 
@@ -80,39 +80,37 @@ public class ControladorRestaurante {
 
     private void agregarPedido(Pedido pedido) {
         int prioridad = pedido.getCliente().isVip() ? 0 : 1;
-        pedido.setEstado("📝 Pedido tomado");
+        pedido.setEstado(" Pedido tomado");
         pedidosRegistrados[totalPedidos++] = pedido;
         colaPedidos.add(pedido.getId(), prioridad);
-        System.out.println("✅ Pedido agregado correctamente #" + pedido.getId());
+        System.out.println(" Pedido agregado correctamente #" + pedido.getId());
     }
 
-    // ===============================
-    // 🧾 PROCESAR TODOS LOS PEDIDOS
-    // ===============================
+
+    //  PROCESAR TODOS LOS PEDIDOS
     public void procesarTodosLosPedidos() {
         if (colaPedidos.isEmpty()) {
-            System.out.println("⚠️ No hay pedidos pendientes.");
+            System.out.println("️ No hay pedidos pendientes.");
             return;
         }
 
-        System.out.println("\n🍳 Enviando pedidos a cocina...");
+        System.out.println("\n Enviando pedidos a cocina...");
         while (!colaPedidos.isEmpty()) {
             int id = colaPedidos.getElement();
             Pedido p = buscarPedidoPorId(id);
             colaPedidos.remove();
 
-            if (p != null && p.getEstado().equals("📝 Pedido tomado")) {
-                p.setEstado("🍳 En cocina");
-                System.out.println("👨‍🍳 Pedido #" + p.getId() + " en preparación.");
+            if (p != null && p.getEstado().equals(" Pedido tomado")) {
+                p.setEstado(" En cocina");
+                System.out.println(" Pedido #" + p.getId() + " en preparación.");
                 colaPedidos.add(p.getId(), p.esVip() ? 0 : 1);
             }
         }
-        System.out.println("✅ Todos los pedidos fueron enviados a cocina.\n");
+        System.out.println(" Todos los pedidos fueron enviados a cocina.\n");
     }
 
-    // ===============================
-    // 🍳 PREPARAR TODOS LOS PEDIDOS
-    // ===============================
+
+    //  PREPARAR TODOS LOS PEDiDOS
     public void prepararTodosLosPedidos() {
         boolean algunoPreparado = false;
         for (int i = 0; i < totalPedidos; i++) {
@@ -122,35 +120,35 @@ public class ControladorRestaurante {
                     Plato plato = p.obtenerPlato(j);
                     plato.setEstado("listo");
                 }
-                p.setEstado("🚚 Listo para entregar");
-                System.out.println("✅ Pedido #" + p.getId() + " listo para entregar.");
+                p.setEstado(" Listo para entregar");
+                System.out.println(" Pedido #" + p.getId() + " listo para entregar.");
                 algunoPreparado = true;
             }
         }
         if (!algunoPreparado)
-            System.out.println("⚠️ No hay pedidos en cocina para preparar.\n");
+            System.out.println(" No hay pedidos en cocina para preparar.\n");
     }
 
-    // ===============================
-    // 🚚 ENTREGAR TODOS LOS PEDIDOS
-    // ===============================
+
+    //  ENTREGAR TODOS LOS PEDIDOS
+
     public void entregarTodosLosPedidos() {
         boolean algunoEntregado = false;
         for (int i = 0; i < totalPedidos; i++) {
             Pedido p = pedidosRegistrados[i];
-            if (p != null && p.getEstado().equals("🚚 Listo para entregar")) {
-                p.setEstado("✅ Entregado");
-                System.out.println("🚚 Pedido #" + p.getId() + " entregado a " + p.getCliente().getNombre());
+            if (p != null && p.getEstado().equals(" Listo para entregar")) {
+                p.setEstado(" Entregado");
+                System.out.println(" Pedido #" + p.getId() + " entregado a " + p.getCliente().getNombre());
                 algunoEntregado = true;
             }
         }
         if (!algunoEntregado)
-            System.out.println("⚠️ No hay pedidos listos para entregar.\n");
+            System.out.println(" No hay pedidos listos para entregar.\n");
     }
 
-    // ===============================
-    // 🗑️ ELIMINAR PEDIDO POR NÚMERO
-    // ===============================
+
+    // ️ ELIMINAR PEDIDO POR NÚMERO
+
     public void eliminarPedido(Scanner scanner) {
         System.out.print("Ingrese el número del pedido a eliminar: ");
         int id = scanner.nextInt();
@@ -159,16 +157,15 @@ public class ControladorRestaurante {
         for (int i = 0; i < totalPedidos; i++) {
             if (pedidosRegistrados[i] != null && pedidosRegistrados[i].getId() == id) {
                 pedidosRegistrados[i] = null;
-                System.out.println("🗑️ Pedido #" + id + " eliminado correctamente.\n");
+                System.out.println("️ Pedido #" + id + " eliminado correctamente.\n");
                 return;
             }
         }
-        System.out.println("⚠️ No se encontró el pedido #" + id + ".\n");
+        System.out.println("️No se encontró el pedido #" + id + ".\n");
     }
 
-    // ===============================
-    // 🔍 MÉTODOS DE APOYO
-    // ===============================
+
+    //  MÉTODOS DE APOYO
     private Pedido buscarPedidoPorId(int id) {
         for (int i = 0; i < totalPedidos; i++) {
             if (pedidosRegistrados[i] != null && pedidosRegistrados[i].getId() == id) {
@@ -179,17 +176,17 @@ public class ControladorRestaurante {
     }
 
     public void mostrarReporteInteractivo(Scanner scanner) {
-        System.out.println("\n📊 Reporte general del sistema:");
+        System.out.println("\n Reporte general del sistema:");
         int pendientes = 0, cocina = 0, listos = 0, entregados = 0;
 
         for (int i = 0; i < totalPedidos; i++) {
             Pedido p = pedidosRegistrados[i];
             if (p == null) continue;
             switch (p.getEstado()) {
-                case "📝 Pedido tomado" -> pendientes++;
-                case "🍳 En cocina" -> cocina++;
-                case "🚚 Listo para entregar" -> listos++;
-                case "✅ Entregado" -> entregados++;
+                case " Pedido tomado" -> pendientes++;
+                case " En cocina" -> cocina++;
+                case " Listo para entregar" -> listos++;
+                case " Entregado" -> entregados++;
             }
         }
 
@@ -201,11 +198,11 @@ public class ControladorRestaurante {
 
     public void mostrarEstadoPedidos() {
         if (totalPedidos == 0) {
-            System.out.println("⚠️ No hay pedidos registrados.");
+            System.out.println(" No hay pedidos registrados.");
             return;
         }
 
-        System.out.println("\n📦 ESTADO DE PEDIDOS (ordenados por prioridad)");
+        System.out.println("\n ESTADO DE PEDIDOS (ordenados por prioridad)");
         System.out.println("-------------------------------------");
 
         // Creamos un arreglo auxiliar para mostrar según prioridad
@@ -237,20 +234,20 @@ public class ControladorRestaurante {
                         " | Prioridad: " + tipoPrioridad +
                         " | Estado: " + p.getEstado());
                 prioridadPos++;
-                if (p.getEstado().equals("✅ Entregado") || p.getEstado().equals("🚚 Listo para entregar")) {
+                if (p.getEstado().equals(" Entregado") || p.getEstado().equals(" Listo para entregar")) {
                     despachados++;
                 }
             }
         }
 
         System.out.println("-------------------------------------");
-        System.out.println("📋 Pedidos totales: " + totalPedidos);
-        System.out.println("🚚 Pedidos despachados: " + despachados);
+        System.out.println(" Pedidos totales: " + totalPedidos);
+        System.out.println(" Pedidos despachados: " + despachados);
     }
 
 
     public void mostrarPlatos() {
-        System.out.println("\n🍽️ MENÚ DISPONIBLE:");
+        System.out.println("\n MENÚ DISPONIBLE:");
         for (Plato p : obtenerMenuEjemplo()) {
             System.out.println(p.getId() + ". " + p.getNombre() + " - $" + p.getPrecio());
         }
@@ -266,11 +263,11 @@ public class ControladorRestaurante {
 
     private Plato[] obtenerMenuEjemplo() {
         return new Plato[]{
-                new Plato(1, "Milanesa con papas", 3500),
-                new Plato(2, "Hamburguesa completa", 3000),
-                new Plato(3, "Pizza muzzarella", 4200),
-                new Plato(4, "Empanadas (3 unidades)", 2000),
-                new Plato(5, "Ravioles con salsa", 3800)
+                new Plato(1, "Milanesa con papas", 10000),
+                new Plato(2, "Hamburguesa completa", 12000),
+                new Plato(3, "Pizza muzzarella", 15000),
+                new Plato(4, "Empanadas (3 unidades)", 5500),
+                new Plato(5, "Ravioles con salsa", 12000)
         };
     }
 }

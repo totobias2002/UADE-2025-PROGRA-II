@@ -17,9 +17,7 @@ public class Pedido {
         this.cantidadPlatos = 0;
     }
 
-    // ======================
-    // 🔹 GETTERS Y SETTERS
-    // ======================
+
     public int getId() {
         return id;
     }
@@ -40,9 +38,6 @@ public class Pedido {
         this.estado = estado;
     }
 
-    // ======================
-    // 🍽️ MANEJO DE PLATOS
-    // ======================
     public void agregarPlato(Plato plato) {
         if (cantidadPlatos < platos.length) {
             platos[cantidadPlatos++] = plato;
@@ -89,7 +84,7 @@ public class Pedido {
     }
 
     public boolean esVip() {
-        return cliente.isVip(); // ✅ corregido
+        return cliente.isVip();
     }
 
     @Override
