@@ -44,7 +44,7 @@ public class Menu {
             }
         }
     }
-
+// Muestra las opciones del sistema
     private void mostrarMenuPrincipal() {
         System.out.println("\n=====================================");
         System.out.println("          SISTEMA DE RESTAURANTE");

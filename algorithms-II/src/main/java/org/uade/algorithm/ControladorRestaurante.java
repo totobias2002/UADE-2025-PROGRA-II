@@ -11,13 +11,12 @@ public class ControladorRestaurante {
 
     public ControladorRestaurante() {
         colaPedidos = new DynamicPriorityQueueADT();
-        pedidosRegistrados = new Pedido[100];
+        pedidosRegistrados = new Pedido[100];  //Limite de 100 pedidos
         totalPedidos = 0;
     }
 
-    // ===============================
-    // 📋 REGISTRO DE NUEVOS PEDIDOS
-    // ===============================
+
+    // Registra los nuevos pedidos
     public void registrarPedido(Scanner scanner) {
         System.out.print("Ingrese nombre del cliente: ");
         String nombre = scanner.nextLine();
@@ -36,7 +35,7 @@ public class ControladorRestaurante {
         int tipoNum;
         String tipoPedido = "";
 
-        // 🔁 Menú para elegir tipo de pedido con validación
+        //  Menú para elegir tipo de pedido con validación
         while (true) {
             System.out.println("Seleccione el tipo de pedido:");
             System.out.println("1. Para llevar");
@@ -60,7 +59,7 @@ public class ControladorRestaurante {
         mostrarPlatos();
 
         while (true) {
-            System.out.print("Ingrese ID del plato (0 para finalizar): ");
+            System.out.print("Elija el menu entre 1 y 5   (0 para finalizar): ");
             int idPlato = scanner.nextInt();
             scanner.nextLine();
 
@@ -71,13 +70,13 @@ public class ControladorRestaurante {
                 pedido.agregarPlato(plato);
                 System.out.println(" Plato agregado: " + plato.getNombre());
             } else {
-                System.out.println(" ID inválido.");
+                System.out.println(" plato inválido.");
             }
         }
 
         agregarPedido(pedido);
     }
-
+    // Toma el pedido
     private void agregarPedido(Pedido pedido) {
         int prioridad = pedido.getCliente().isVip() ? 0 : 1;
         pedido.setEstado(" Pedido tomado");
@@ -87,19 +86,22 @@ public class ControladorRestaurante {
     }
 
 
-    //  PROCESAR TODOS LOS PEDIDOS
+    // Procesa todos los pedidos
+
+    // Sino hay pedidos lo avisa
     public void procesarTodosLosPedidos() {
         if (colaPedidos.isEmpty()) {
             System.out.println("️ No hay pedidos pendientes.");
             return;
         }
-
+        // Envia los pedidos a cocina
         System.out.println("\n Enviando pedidos a cocina...");
         while (!colaPedidos.isEmpty()) {
             int id = colaPedidos.getElement();
             Pedido p = buscarPedidoPorId(id);
             colaPedidos.remove();
-
+            // muestra el numero de pedido,  marca que esta en preparacion
+            // lo envia a a cocina
             if (p != null && p.getEstado().equals(" Pedido tomado")) {
                 p.setEstado(" En cocina");
                 System.out.println(" Pedido #" + p.getId() + " en preparación.");
@@ -110,12 +112,12 @@ public class ControladorRestaurante {
     }
 
 
-    //  PREPARAR TODOS LOS PEDiDOS
+    // Prepara todos los pedios
     public void prepararTodosLosPedidos() {
         boolean algunoPreparado = false;
         for (int i = 0; i < totalPedidos; i++) {
             Pedido p = pedidosRegistrados[i];
-            if (p != null && p.getEstado().equals("🍳 En cocina")) {
+            if (p != null && p.getEstado().equals(" En cocina")) {
                 for (int j = 0; j < p.cantidadDePlatos(); j++) {
                     Plato plato = p.obtenerPlato(j);
                     plato.setEstado("listo");
@@ -125,12 +127,13 @@ public class ControladorRestaurante {
                 algunoPreparado = true;
             }
         }
+        //identifica si hay pedidos en cocina
         if (!algunoPreparado)
             System.out.println(" No hay pedidos en cocina para preparar.\n");
     }
 
 
-    //  ENTREGAR TODOS LOS PEDIDOS
+    //  Entrega el pedido cuando viene a retirar al local
 
     public void entregarTodosLosPedidos() {
         boolean algunoEntregado = false;
@@ -147,7 +150,7 @@ public class ControladorRestaurante {
     }
 
 
-    // ️ ELIMINAR PEDIDO POR NÚMERO
+    // ️ Elimina el pedido por numero
 
     public void eliminarPedido(Scanner scanner) {
         System.out.print("Ingrese el número del pedido a eliminar: ");
@@ -165,7 +168,7 @@ public class ControladorRestaurante {
     }
 
 
-    //  MÉTODOS DE APOYO
+    //  Metodo de apoyo
     private Pedido buscarPedidoPorId(int id) {
         for (int i = 0; i < totalPedidos; i++) {
             if (pedidosRegistrados[i] != null && pedidosRegistrados[i].getId() == id) {
@@ -174,7 +177,7 @@ public class ControladorRestaurante {
         }
         return null;
     }
-
+ // Reporta el estado de los pedidos
     public void mostrarReporteInteractivo(Scanner scanner) {
         System.out.println("\n Reporte general del sistema:");
         int pendientes = 0, cocina = 0, listos = 0, entregados = 0;

@@ -7,7 +7,7 @@ public class Pedido {
     private int cantidadPlatos;
     private String tipo;     // "Para llevar" o "A domicilio"
     private String estado;   // "pendiente", "en preparación", "entregado"
-
+// Crea la clase con el
     public Pedido(int id, Cliente cliente, String tipo) {
         this.id = id;
         this.cliente = cliente;

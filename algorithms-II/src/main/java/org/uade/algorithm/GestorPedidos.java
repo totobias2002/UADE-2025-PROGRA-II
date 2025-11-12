@@ -8,7 +8,7 @@ public class GestorPedidos {
     private Pedido[] pedidosRegistrados;
     private int totalPedidos;
     private int pedidosDespachados;
-
+// Cola con prioridad por cliente VIP o normal
     public GestorPedidos() {
         colaPedidos = new DynamicPriorityQueueADT();
         pedidosRegistrados = new Pedido[100];
@@ -16,7 +16,7 @@ public class GestorPedidos {
         pedidosDespachados = 0;
     }
 
-
+ //Marca el estado del pedido
     public void agregarPedido(Pedido pedido) {
         int prioridad = pedido.getCliente().isVip() ? 0 : 1;
         pedido.setEstado(" Pedido tomado");
@@ -33,7 +33,7 @@ public class GestorPedidos {
         }
         return null;
     }
-
+// Muestra si hay pedidos pendientes
     public void procesarSiguientePedido() {
         if (colaPedidos.isEmpty()) {
             System.out.println(" No hay pedidos pendientes para procesar.");
@@ -49,7 +49,7 @@ public class GestorPedidos {
             return;
         }
 
-        pedido.setEstado("🍳 En cocina");
+        pedido.setEstado(" En cocina");
         System.out.println("\n Procesando pedido #" + pedido.getId() +
                 " del cliente: " + pedido.getCliente().getNombre());
 
