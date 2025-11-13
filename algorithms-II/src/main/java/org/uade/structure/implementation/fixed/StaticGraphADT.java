@@ -1,69 +1,71 @@
 package org.uade.structure.implementation.fixed;
 
-public class StaticGraphADT {
+import org.uade.structure.definition.GraphADT;
+import org.uade.structure.definition.SetADT;
 
-    private final int MAX_VERTICES;
-    private boolean[][] adjMatrix;
-    private int size;
+public class StaticGraphADT implements GraphADT {
+    private final int MAX_VERTICES = 20;
+    private int[][] matriz;
+    private boolean[] verticesPresentes;
+    private int cantidadVertices;
 
-    public StaticGraphADT(int maxVertices) {
-        this.MAX_VERTICES = maxVertices;
-        this.adjMatrix = new boolean[MAX_VERTICES][MAX_VERTICES];
-        this.size = 0;
+    public StaticGraphADT() {
+        matriz = new int[MAX_VERTICES][MAX_VERTICES];
+        verticesPresentes = new boolean[MAX_VERTICES];
+        cantidadVertices = 0;
     }
 
+    @Override
+    public SetADT getVertxs() {
+        throw new UnsupportedOperationException("No se implementó con SetADT todavía");
+    }
 
-    public void addVertex() {
-        if (size >= MAX_VERTICES) {
-            throw new IllegalStateException("Cantidad máxima de vértices alcanzada");
+    @Override
+    public void addVertx(int vertex) {
+        if (!verticesPresentes[vertex]) {
+            verticesPresentes[vertex] = true;
+            cantidadVertices++;
         }
-
-        size++;
     }
 
-
-    public void addEdge(int from, int to) {
-        if (from < 0 || from >= size || to < 0 || to >= size) {
-            throw new IndexOutOfBoundsException("Vértice inexistente");
-        }
-        adjMatrix[from][to] = true;
-        adjMatrix[to][from] = true; // quitar esta línea si es grafo dirigido
-    }
-
-
-    public void removeEdge(int from, int to) {
-        if (from < 0 || from >= size || to < 0 || to >= size) {
-            throw new IndexOutOfBoundsException("Vértice inexistente");
-        }
-        adjMatrix[from][to] = false;
-        adjMatrix[to][from] = false;
-    }
-
-
-    public boolean hasEdge(int from, int to) {
-        if (from < 0 || from >= size || to < 0 || to >= size) {
-            throw new IndexOutOfBoundsException("Vértice inexistente");
-        }
-        return adjMatrix[from][to];
-    }
-
-
-    public int getSize() {
-        return size;
-    }
-
-
-    public boolean isEmpty() {
-        return size == 0;
-    }
-
-
-    public void printGraph() {
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                System.out.print((adjMatrix[i][j] ? 1 : 0) + " ");
+    @Override
+    public void removeVertx(int vertex) {
+        if (verticesPresentes[vertex]) {
+            for (int i = 0; i < MAX_VERTICES; i++) {
+                matriz[vertex][i] = 0;
+                matriz[i][vertex] = 0;
             }
-            System.out.println();
+            verticesPresentes[vertex] = false;
+            cantidadVertices--;
         }
+    }
+
+    @Override
+    public void addEdge(int vertxOne, int vertxTwo, int weight) {
+        if (verticesPresentes[vertxOne] && verticesPresentes[vertxTwo]) {
+            matriz[vertxOne][vertxTwo] = weight;
+            matriz[vertxTwo][vertxOne] = weight; // No dirigido
+        }
+    }
+
+    @Override
+    public void removeEdge(int vertxOne, int vertxTwo) {
+        matriz[vertxOne][vertxTwo] = 0;
+        matriz[vertxTwo][vertxOne] = 0;
+    }
+
+    @Override
+    public boolean existsEdge(int vertxOne, int vertxTwo) {
+        return matriz[vertxOne][vertxTwo] != 0;
+    }
+
+    @Override
+    public int edgeWeight(int vertxOne, int vertxTwo) {
+        return matriz[vertxOne][vertxTwo];
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return cantidadVertices == 0;
     }
 }
