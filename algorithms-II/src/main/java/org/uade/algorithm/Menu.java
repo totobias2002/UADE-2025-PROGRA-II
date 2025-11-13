@@ -35,7 +35,7 @@ public class Menu {
                 case 6 -> controlador.mostrarReporteInteractivo(scanner);
                 case 7 -> controlador.mostrarEstadoPedidos();
                 case 8 -> controlador.eliminarPedido(scanner);
-                case 9 -> repartidor.asignarPedido(pedido);
+                case 9 -> controlador.asignarPedido(pedido);
                 case 0 -> {
                     System.out.println("\n Saliendo del sistema... ¡Hasta luego!");
                     scanner.close();
