@@ -3,6 +3,7 @@ package org.uade.algorithm;
 import java.util.Scanner;
 
 public class Menu {
+
     private ControladorRestaurante controlador;
 
     public Menu() {
@@ -18,7 +19,7 @@ public class Menu {
             System.out.print("Seleccione una opción: ");
 
             if (!scanner.hasNextInt()) {
-                System.out.println("X Entrada inválida.\n");
+                System.out.println("X Entrada inválida.");
                 scanner.next();
                 continue;
             }
@@ -28,50 +29,31 @@ public class Menu {
 
             switch (opcion) {
                 case 1 -> controlador.registrarPedido(scanner);
-                case 2 -> controlador.mostrarPlatos();
-                case 3 -> controlador.procesarTodosLosPedidos();
-                case 4 -> controlador.prepararTodosLosPedidos();
-                case 5 -> controlador.entregarTodosLosPedidos();
-                case 6 -> controlador.mostrarReporteInteractivo(scanner);
-                case 7 -> controlador.mostrarEstadoPedidos();
-                case 8 -> controlador.eliminarPedido(scanner);
+                case 2 -> controlador.procesarSiguientePedido();
+                case 3 -> controlador.prepararSiguientePedido();
+                case 4 -> controlador.entregarSiguientePedido();
+                case 5 -> controlador.mostrarEstadoPedidos();
+                case 6 -> controlador.mostrarMenuReportes(scanner);
+                case 7 -> controlador.eliminarPedido(scanner);
                 case 0 -> {
-                    System.out.println("\n Saliendo del sistema... ¡Hasta luego!");
-                    scanner.close();
+                    System.out.println("Saliendo del sistema...");
                     return;
                 }
-                default -> System.out.println("️ Opción inválida. Intente nuevamente.\n");
+                default -> System.out.println("X Opción fuera de rango.");
             }
         }
     }
-// Muestra las opciones del sistema
+
     private void mostrarMenuPrincipal() {
-        System.out.println("\n=====================================");
-        System.out.println("          SISTEMA DE RESTAURANTE");
-        System.out.println("=====================================");
-        System.out.println("  PEDIDOS");
-        System.out.println("   1. Registrar nuevo pedido");
-        System.out.println("   2. Mostrar platos disponibles");
-        System.out.println("-------------------------------------");
-        System.out.println("  ORGANIZACIÓN DE PEDIDOS");
-        System.out.println("   3. Procesar todos los pedidos tomados (pasar a cocina)");
-        System.out.println("-------------------------------------");
-        System.out.println("  COCINA");
-        System.out.println("   4. Preparar todos los pedidos en cocina");
-        System.out.println("-------------------------------------");
-        System.out.println("  ENTREGAS");
-        System.out.println("   5. Entregar todos los pedidos listos");
-        System.out.println("-------------------------------------");
-        System.out.println("  REPORTES Y ANÁLISIS");
-        System.out.println("   6. Ver reporte general del sistema");
-        System.out.println("-------------------------------------");
-        System.out.println("  ESTADO DE PEDIDOS");
-        System.out.println("   7. Ver pedidos y su estado actual");
-        System.out.println("-------------------------------------");
-        System.out.println("  GESTIÓN ADMINISTRATIVA");
-        System.out.println("   8. Eliminar pedido por número");
-        System.out.println("-------------------------------------");
+        System.out.println("\n===== SISTEMA DEL RESTAURANTE =====");
+        System.out.println("1. Registrar pedido");
+        System.out.println("2. Procesar siguiente pedido");
+        System.out.println("3. Preparar siguiente pedido");
+        System.out.println("4. Entregar siguiente pedido");
+        System.out.println("5. Mostrar estado de pedidos");
+        System.out.println("6. Reportes");
+        System.out.println("7. Eliminar un pedido");
         System.out.println("0. Salir");
-        System.out.println("=====================================");
+        System.out.println("===================================\n");
     }
 }

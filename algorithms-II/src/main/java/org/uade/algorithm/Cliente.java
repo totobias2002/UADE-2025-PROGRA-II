@@ -1,6 +1,7 @@
 package org.uade.algorithm;
 
 public class Cliente {
+
     private String nombre;
     private String direccion;
     private String telefono;
@@ -17,9 +18,4 @@ public class Cliente {
     public String getDireccion() { return direccion; }
     public String getTelefono() { return telefono; }
     public boolean isVip() { return vip; }
-
-    @Override
-    public String toString() {
-        return nombre + " (" + (vip ? "VIP" : "Normal") + ")";
-    }
 }
